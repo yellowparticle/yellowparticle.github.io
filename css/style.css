@@ -80,7 +80,7 @@ header a:hover{
 
 /* Showcase */
 #showcase{
-    min-height:400px;
+    min-height:30%;
     background-image: url('../img/showcase.jpg');
     background-repeat:no-repeat;
     background-size: cover;
