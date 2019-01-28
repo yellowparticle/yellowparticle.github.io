@@ -1,5 +1,6 @@
 """
-Snake Pygame Code modified by Emily Huang 
+Snake Pygame Code modified by Emily Huang
+--Must have pygame installed and pictures used in this game downloaded--
 
 thenewboston pygame tutorials 
 """
