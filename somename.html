@@ -1,0 +1,55 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Processing Demo</title>
+<script type="text/javascript" src="processing.js"></script>
+</head>
+<body>
+
+
+<script type="text/processing">
+
+int x; int y; int r; int Vx; int Vy;
+
+void setup(){
+  size(600,700);
+  x=100;
+  y=200;
+  r=80;
+  Vx = 8;
+  Vy = 8;
+}
+
+void draw(){
+  background(0); //starts each loop with a fresh slate
+  ellipse(x,y,r,r);
+  updatePosition();
+  bounce();
+  fill(random(0,255),random(0,255),random(0,255));
+}
+
+void bounce(){
+  if(x > width - r/2){
+    Vx *= -1;
+  }
+  if(y > height - r/2){
+    Vy *= -1;
+  }
+  if(x < r/2){
+    Vx *= -1;
+  }
+  if(y < r/2){
+    Vy *= -1;
+  }
+}
+
+void updatePosition(){
+  x += Vx;
+  y += Vy;
+}
+
+</script>
+
+<canvas id="sketch" style="border: 1px solid black;"></canvas>
+</body>
+</html>

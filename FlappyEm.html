@@ -1,0 +1,288 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Processing Demo</title>
+<script type="text/javascript" src="processing.js"></script>
+</head>
+<body>
+
+
+<script type="text/processing">
+
+import processing.pdf.*
+// variables
+PFont font1; PFont font2; PFont font3; PFont font4; 
+PImage bg; PImage bgR; PImage snorlax; PImage snorlax2; PImage costume;
+int x; int cx; int cy; int cVy; int moveSpeed;
+int numDragonite = 7;
+int gameState; PImage dragonite; int[] dx = new int[numDragonite]; int[] dy = new int[numDragonite]; int count;
+int score; int highScore; 
+PImage pokeBall; int px; int py;
+PImage sleep; int sx; int sy;
+PImage back2; int sleepCount; int pokeBallCount;
+boolean isShooting; boolean poke;
+int chaseCount;
+
+void setup(){
+  isShooting = true;
+  poke = false;
+  gameState = -1;
+  font4 = createFont("Impact", 45);
+  font3 = createFont("Comic Sans MS", 25);
+  font2 = createFont("Comic Sans MS", 16);
+  font1 = createFont("Comic Sans MS", 35);
+  size(800,600);
+  bg = loadImage("./img/bg.png"); // background of game when running
+  bgR = loadImage("./img/back2.png"); //background of starting screen
+  snorlax = loadImage("./img/snorlax.png");
+  snorlax2 = loadImage("./img/snorlax2.png"); //when not clicked
+  costume = snorlax;
+  dragonite = loadImage("./img/dragonite.png");
+  pokeBall = loadImage("./img/pokeball.png");
+  sleep = loadImage("./img/sleep.png");
+  back2 = loadImage("./img/back2.png"); //background of starting screen
+  
+  cVy = 2;
+  cy = 100;
+  cx = 50;
+  sx = width + 10000;
+  px = width + 200;
+  py = (int)random(200,600);
+  for(int i =0; i < numDragonite; i++){
+    dx[i] = width + (int)random(50, 200) + 200*i;
+    dy[i] = height/2 + (int)random(-200,200);
+  }
+  
+}
+
+void draw(){
+  moveSpeed++;
+  count++;
+  move();
+  if(score > highScore){
+        highScore = score;
+  }
+  if(gameState==0){
+  image(bg, x, 0);
+  image(bg, x+bg.width - 6, 0);
+  image(bg, x+2*bg.width - 12, 0);
+  if(score > 35){
+    px++;
+    x++;
+    for(int i = 0; i < numDragonite; i++){
+      dx[i]++;  
+    }
+  }
+  if(x < -(2*bg.width+12)){
+    x=0;
+  } 
+  
+  //Dragonite
+  for(int i = 0; i<numDragonite ; i++){
+    dx[i]-= 2;
+    if(dx[i] < -10){
+      score++;
+      dx[i] = width + (int)random(50, 200);
+      dy[i] = height/2 + (int)random(-200,200);
+    }
+    if(abs((int)((sx+10)-(dx[i]+5))) < 10 && abs((int)((sy+10) - (dy[i]+32))) < 46){
+      dx[i]+=2000;
+      sx = width +20000;
+      score++;
+    }
+    if(abs((int)((cx+35)-(dx[i]+7))) < 22 && abs((int)((cy+34) - (dy[i]+41))) < 74){
+      gameState=1;
+    }
+    image(dragonite, dx[i], dy[i]);
+    
+    //Pokeball
+    if(score >10){
+      px -= 1;
+      if(score > 20){
+        chaseSnorlax();
+      }
+      if(px < -100){
+         px = width + 2000;
+         py = (int)random(200,600);
+      }
+      if(abs((int)((cx+35)-(px+75))) < 80 && abs((int)((cy+34) - (py+52))) < 86){
+        gameState=1;
+      }
+      image(pokeBall, px, py);
+    }     
+  }
+    
+  
+  
+  //Snorlax
+  image(costume, cx,cy);
+  cy = cy + cVy;
+  if(count%2 ==0){
+    cVy ++;
+  }
+  x--;
+  checkSnorlax();
+  
+  //Sleep Attack
+  image(sleep, sx, sy);
+  sx += 10;
+  if(abs((int)((sx+10)-(px+75))) < 80 && abs((int)((sy+10) - (py+52))) < 86){
+      px+=2000;  
+      sx =20000;
+      score++;
+      if(pokeBallCount==0){
+        poke = true;
+      }
+      if(pokeBallCount>0){
+        poke = false; 
+      }
+      pokeBallCount++;
+      
+  }
+  if(sx > width + 20){
+    sx = 20000;
+  } 
+ //END GAMESTATE 0 
+ }
+  //Snorlax Dies:
+  if(gameState==1){
+    //BEGIN BUTTON
+    textSize(34);   // text size
+    text("R.I.P Snorlax", 300,146);
+    fill(245); 
+    rect(290,160, 240, 45, 10);  //BACKGROUND OF BUTTON
+    fill(0);
+    
+    //Play Again
+    if(mouseX > 290 && mouseY > 160 && mouseX < 540 && mouseY < 205){
+      if (mousePressed){
+        cy = 100;
+        cVy = 2;
+        cx = 50;
+        score = 0;
+        sx = width + 10000;
+        px = width + 200;
+        py = (int)random(200,600);       
+        for(int i =0; i < numDragonite ; i++){
+          dx[i] = width + (int)random(50, 200) + 200*i;
+          dy[i] = height/2 + (int)random(-200,200);
+        }
+        gameState=0;             
+      }
+ 
+      else{  //HOVER OVER BUT NOT CLICK
+        fill(197, 244, 66);
+        rect(290, 160, 240, 45, 10);
+        fill(0);
+        text("Play Again?", 300, 196);  //TEXT ON BUTTON
+      }
+    }  
+  }
+  
+  //Score chart
+  fill(0);
+  textSize(18);
+  text("Score: " + score, width -780, 30);
+  text("High Score: " + highScore, width - 780, 50);
+  
+  // incoming pokeball warning 
+  if(score > 8 && score < 12){
+    fill(188, 67, 67);
+    textSize(30);
+    text("Incoming Pokeballs! ", 160, 110);
+    fill(0);
+    textSize(16);
+
+  }
+  
+  //Starting Screen text
+  if(gameState == -1){
+    image(back2,0,0);
+    fill(0,0,0, 151);
+    textSize(24);
+    textFont(font1);
+    text("Poke snorlax here to start!", 230, 540);
+    if(mousePressed && mouseX>210 && mouseY>500){
+      gameState = 0;
+    }   
+    textFont(font2);
+    text("Move:  Follows mouse", 450, 370);
+    text("Attack:  Space bar / Right Click", 450, 390);
+    text("Fly:  Left click", 450, 410); 
+    
+    fill(0,0,0, 255);
+    text("Controls", 450, 350);
+    textFont(font3);
+    text("Avoid getting caught by a pokeball or killed by dragonites!", 70, 200);
+    textFont(font4);
+    text("FLAPPY SNORLAX", 300, 60); 
+  }
+  
+}
+//End draw
+void move(){
+  if (mouseX > cx){    
+    cx+=1;
+  }
+  else if(mouseX < cx){
+    cx-=1;
+  }
+}
+void keyPressed(){
+  if(key==32){
+    toSleep();
+  }
+}
+void mousePressed(){
+  if(mouseButton == LEFT){ //snorlax flap left click
+    cVy = -10;
+  }
+  else if(mouseButton == RIGHT){ //shoots sleep right click
+    toSleep();
+  }
+  costume = snorlax2;
+  
+}
+
+void mouseReleased(){
+  costume = snorlax;
+}
+
+// Shoots sleep attack
+void toSleep(){
+  sx = cx + 50;
+  sy = cy + 10;
+  sleepCount++;
+  if(sleepCount > 4){
+    isShooting = true;
+  }
+  else{
+    isShooting = false;
+  }
+}
+
+// Off screen = death 
+void checkSnorlax(){
+  if(cy > height || cy < -53){
+    gameState =1;
+  }
+}
+
+// Pokeballs
+void chaseSnorlax(){
+   if(py > cy && chaseCount%3==0){
+     py--;
+     px--;
+   }
+   if(py < cy && chaseCount%3==0){
+     py++;
+     px--;
+   }
+   chaseCount++;
+}
+
+</script>
+
+<canvas id="sketch" style="border: 1px solid black;"></canvas>
+</body>
+</html>
